@@ -51,7 +51,7 @@ def build_skill_entry(skill_dir: Path) -> dict | None:
         "description": description,
         "version": "1.0.0",
         "author": "Presto-io",
-        "repo": f"https://github.com/Presto-io/presto-skills",
+        "repo": "Presto-io/presto-skills",
         "path": skill_dir.name,
         "license": "MIT",
         "category": "productivity",
