@@ -33,7 +33,11 @@ jobs:
           GH_TOKEN: ${{ secrets.PRESTO_PAT }}
         run: |
           test -f output/deploy/registry.json
-          git clone https://x-access-token:${GH_TOKEN}@github.com/Presto-io/registry-deploy.git /tmp/deploy
+          git_auth_config=(
+            -c credential.helper=
+            -c 'credential.https://github.com.helper=!f() { echo username=x-access-token; echo password=$GH_TOKEN; }; f'
+          )
+          git "${git_auth_config[@]}" clone https://github.com/Presto-io/registry-deploy.git /tmp/deploy
           rm -rf /tmp/deploy/agent-skills
           mkdir -p /tmp/deploy/agent-skills
           cp output/deploy/registry.json /tmp/deploy/agent-skills/registry.json
@@ -46,4 +50,4 @@ jobs:
             exit 0
           fi
           git commit -m "chore: update agent skill registry"
-          git push
+          git "${git_auth_config[@]}" push
