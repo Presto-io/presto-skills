@@ -1,0 +1,7 @@
+interface:
+  display_name: "Presto 实操教案"
+  short_description: "将课程内容转换为实操教案模板 Markdown 并生成横向 A4 PDF"
+  icon_small: "./assets/icon-192x192.png"
+  icon_large: "./assets/icon-512x512.png"
+  brand_color: "#7aa2f7"
+  default_prompt: "使用 /presto-jiaoan-shicao 将以下课程内容转换为实操教案并生成 PDF"
