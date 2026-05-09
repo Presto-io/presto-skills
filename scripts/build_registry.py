@@ -3,11 +3,28 @@
 
 import json
 import re
+import hashlib
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
 import yaml
+
+
+def compute_skill_hash(skill_dir: Path) -> str:
+    """Compute a stable SHA256 hash for the skill contents."""
+    digest = hashlib.sha256()
+    for path in sorted(skill_dir.rglob("*")):
+        if not path.is_file():
+            continue
+        if path.name == ".DS_Store":
+            continue
+        rel = path.relative_to(skill_dir).as_posix()
+        digest.update(rel.encode("utf-8"))
+        digest.update(b"\0")
+        digest.update(path.read_bytes())
+        digest.update(b"\0")
+    return f"sha256:{digest.hexdigest()}"
 
 
 def build_skill_entry(skill_dir: Path) -> dict | None:
@@ -31,6 +48,7 @@ def build_skill_entry(skill_dir: Path) -> dict | None:
 
     name = frontmatter.get("name", skill_dir.name)
     description = frontmatter.get("description", "")
+    version = str(frontmatter.get("version", "1.0.0"))
 
     # Read openai.yaml for UI metadata
     openai_yaml = skill_dir / "agents" / "openai.yaml"
@@ -49,14 +67,15 @@ def build_skill_entry(skill_dir: Path) -> dict | None:
         "name": name,
         "displayName": display_name,
         "description": description,
-        "version": "1.0.0",
+        "version": version,
         "author": "Presto-io",
         "repo": "Presto-io/presto-skills",
         "path": skill_dir.name,
         "license": "MIT",
         "category": "productivity",
-        "keywords": ["presto", "document", "formatting"],
+        "keywords": ["presto", "document", "formatting", "gongwen"],
         "trust": "official",
+        "hash": compute_skill_hash(skill_dir),
     }
 
 

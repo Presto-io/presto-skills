@@ -23,15 +23,25 @@ Additional skills are added as sibling directories at the repo root — no nesti
 Use the Codex skill installer:
 
 ```bash
-npx skills add --repo Presto-io/presto-skills --path presto-gongwen
+npx --yes skills add Presto-io/presto-skills --skill presto-gongwen -g -y
 ```
 
 Replace `presto-gongwen` with the directory name of the skill you want to install.
 
+## Updating a Skill
+
+Use the Skills CLI update command:
+
+```bash
+npx --yes skills update presto-gongwen -g -y
+```
+
+Restart the agent client after updating so it reloads the new `SKILL.md`.
+
 ## CI Automation
 
 - **Validation** — Every PR and push runs `python3 scripts/validate.py` to check skill structure, frontmatter, and metadata.
-- **Registry** — Pushes to `main` automatically generate `registry.json` and deploy it to the CDN endpoint via the `registry-deploy` repository.
+- **Registry** — Pushes to `main` automatically generate `registry.json` with each skill's frontmatter version and content hash, then deploy it to the CDN endpoint via the `registry-deploy` repository.
 
 ## Local Validation
 
