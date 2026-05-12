@@ -1,0 +1,7 @@
+interface:
+  display_name: "Presto 授课计划"
+  short_description: "将课程安排转换为授课进度计划表 Markdown 并生成 A4 PDF"
+  icon_small: "./assets/icon-192x192.png"
+  icon_large: "./assets/icon-512x512.png"
+  brand_color: "#7aa2f7"
+  default_prompt: "使用 /presto-jiaoan-jihua 将以下课程安排转换为授课进度计划表并生成 PDF"
