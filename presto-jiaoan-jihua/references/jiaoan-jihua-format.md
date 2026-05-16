@@ -1,6 +1,6 @@
 # 授课进度计划表模板格式参考
 
-基于 Presto `jiaoan-jihua` 1.0.1 模板的“工学一体化课程/基本技能课程授课进度计划表”Markdown 格式规范。生成内容时应使用 YAML Front-Matter、`##` 学习任务、`###` 学习环节和 `教学内容-课时` 行表达结构，不要手写普通 Markdown 表格来模拟最终 PDF 表格。
+基于 Presto `jiaoan-jihua` 1.0.2 模板的“工学一体化课程/基本技能课程授课进度计划表”Markdown 格式规范。生成内容时应使用 YAML Front-Matter、`##` 学习任务、`###` 学习环节和 `教学内容-课时` 行表达结构，不要手写普通 Markdown 表格来模拟最终 PDF 表格。
 
 ## YAML Front-Matter
 
@@ -8,17 +8,11 @@
 
 ```yaml
 ---
-school_year: "2025-2026"
-semester: "第一学期"
-week_range: "第1 - 2周"
 major_name: "电气自动化技术"
 course_name: "电气设备控制线路安装与调试"
 teacher_name: "张老师"
 class_name: "29WG电气3"
-prepared_by: "张老师"
-first_teaching_day: "2025-09-01"
-daily_hours: 8
-calendar_json: "presto/calendar.json"
+first_teaching_day: "2026-03-06"
 template: "jiaoan-jihua"
 ---
 ```
@@ -27,20 +21,14 @@ template: "jiaoan-jihua"
 
 | 字段 | 用途 |
 |---|---|
-| `school_year` | 顶部标题中的学年，如 `2025-2026` |
-| `semester` | 顶部标题中的学期，如 `第一学期` |
-| `week_range` | 顶部标题中的周次范围，如 `第1 - 2周` |
 | `major_name` | 表头“专业名称” |
 | `course_name` | 表头“课程名称” |
 | `teacher_name` | 表头“授课教师”，页脚“制表”优先使用此字段 |
 | `class_name` | 表头“授课班级” |
-| `prepared_by` | 兼容字段；当前模板页脚“制表”优先显示 `teacher_name` |
-| `first_teaching_day` | 第 1 周的排课起点，格式 `YYYY-MM-DD` |
-| `daily_hours` | 每个教学日可排课时数，必须是数字 |
-| `calendar_json` | 教学日历路径，默认 `presto/calendar.json` |
+| `first_teaching_day` | 课程排课起点，格式 `YYYY-MM-DD` |
 | `template` | 固定写 `jiaoan-jihua` |
 
-注意：不确定的元数据字段保留字段名并把值留空，例如 `teacher_name: ""`。`daily_hours` 缺失或小于等于 0 时模板按 8 课时处理。可以保守补全用户材料中明显给出的课程主题、学习任务名和课时；不要虚构专业、班级、教师、学年学期或日期。`first_teaching_day` 无法解析且没有可用日历锚点时，模板会以运行时当前日期生成默认工作日历。
+注意：不要主动填写 `school_year`、`semester`、`week_range`、`prepared_by`、`daily_hours` 或 `calendar_json`。这些字段由模板根据内置校历、教师姓名和排课结果推断；旧文档里存在这些字段时仍兼容。可以保守补全用户材料中明显给出的课程主题、学习任务名和课时；不要虚构专业、班级、教师或日期。
 
 ## 文档结构总览
 
@@ -116,27 +104,29 @@ template: "jiaoan-jihua"
 
 ## 日历与排程
 
-模板根据以下字段自动排程：
+模板根据以下信息自动排程：
 
-- `first_teaching_day`: 课程排程起点，也是第 1 周推算依据。
-- `daily_hours`: 每个教学日可排的课时数。
-- `calendar_json`: 可选教学日历文件路径。
+- `first_teaching_day`: 课程排程起点。
+- 内置学校校历：校历第一天用于推断学年和学期，并作为周次计算锚点。
+- 默认每日课时：8 课时。
 
-日历文件格式：
+兼容旧输入中的外部日历，推荐使用只包含上课日期的数组：
 
 ```json
 [
-  { "date": "2025-09-01", "workday": true },
-  { "date": "2025-09-02", "workday": true },
-  { "date": "2025-09-06", "workday": false }
+  "2026-03-06",
+  "2026-03-07",
+  "2026-03-09"
 ]
 ```
 
 排程规则：
 
-- 有效日历中只使用 `workday: true` 的日期。
-- 日历缺失时，从 `first_teaching_day` 开始生成默认日历，周一至周五为工作日。
-- 日历 JSON 解析失败、JSON 为空数组或任一日期无法按 `YYYY-MM-DD` 解析时，PDF 中会显示“日历文件解析失败，已使用默认日历”。
+- 内置或外部有效日历中只使用 `workday: true` 的日期。
+- `school_year` 从校历第一天推断：上半年为上一年到当年，下半年为当年到下一年。
+- `semester` 从校历第一天推断：上半年为第二学期，下半年为第一学期。
+- `week_range` 从实际排课覆盖的周次范围推断。
+- 外部日历 JSON 解析失败、JSON 为空数组或任一日期无法按 `YYYY-MM-DD` 解析时，PDF 中会显示“日历文件解析失败，已使用默认日历”。
 - 如果有效日历天数不足，模板会从日历最后一天继续向后生成周一至周五工作日补足。
 - 一条教学内容跨多天时，周次和星期列用空格连接，例如 `1 2`、`5 1 2`。
 
@@ -166,17 +156,11 @@ template: "jiaoan-jihua"
 
 ```markdown
 ---
-school_year: "2025-2026"
-semester: "第一学期"
-week_range: "第1 - 2周"
 major_name: "电气自动化技术"
 course_name: "电气设备控制线路安装与调试"
 teacher_name: "张老师"
 class_name: "29WG电气3"
-prepared_by: "张老师"
-first_teaching_day: "2025-09-01"
-daily_hours: 8
-calendar_json: "presto/calendar.json"
+first_teaching_day: "2026-03-06"
 template: "jiaoan-jihua"
 ---
 
